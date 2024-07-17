@@ -13,3 +13,8 @@
   background-attachment: fixed !important;
   background-position: center !important;
 }
+
+.highlighted-hashtag {
+  color: blue;
+  font-weight: bold;
+}

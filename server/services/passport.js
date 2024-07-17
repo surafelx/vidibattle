@@ -39,6 +39,7 @@ passport.use(
           if (existingUser.status === "deleted") {
             return done(null, false);
           }
+          console.log(existingUser)
           return done(null, existingUser);
         }
 

@@ -4,12 +4,14 @@ import SplashScreen from "./components/SplashScreen";
 import Login from "./pages/auth/Login";
 import WhatsAppLogin from "./pages/auth/WhatsAppLogin";
 import Home from "./pages/home/Home";
+import Notification from "./pages/home/Notification";
 import NotFound from "./pages/NotFound";
 import Timeline from "./pages/timeline/Timeline";
 import { MainLayout } from "./layouts/Layouts";
 import ChatList from "./pages/chat/ChatList";
 import Profile from "./pages/profile/Profile";
 import CreatePost from "./pages/create-post/CreatePost";
+import EditPost from "./pages/edit-post/EditPost";
 import Messages from "./pages/chat/Messages";
 import SuccessCallback from "./pages/auth/SuccessCallback";
 import { isLoggedIn } from "./services/auth";
@@ -26,13 +28,12 @@ import CreateCompetitionPost from "./pages/create-post/CreateCompetitionPost";
 import Wallet from "./pages/wallet/Wallet";
 import CompetitionPosts from "./pages/competition/CompetitionPosts";
 
-export default function Router() {
+export default function Router({ messageCount }: any) {
   let loggedIn = isLoggedIn();
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(true);
 
   useEffect(() => {
     loggedIn = isLoggedIn();
-    setLoading(false);
   }, []);
 
   if (loading) {
@@ -89,7 +90,7 @@ export default function Router() {
           <Route
             path="/home"
             element={
-              <MainLayout active="home">
+              <MainLayout messageCount={messageCount} active="home">
                 <Home />
               </MainLayout>
             }
@@ -99,6 +100,14 @@ export default function Router() {
             element={
               <MainLayout>
                 <CompetitionsList />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/notification"
+            element={
+              <MainLayout>
+                <Notification />
               </MainLayout>
             }
           />
@@ -156,6 +165,7 @@ export default function Router() {
                 }
               />
               <Route path="/create-post" element={<CreatePost />} />
+              <Route path="/edit-post/:postId" element={<EditPost />} />
               <Route
                 path="/competition/:name/:round/create-post"
                 element={<CreateCompetitionPost />}

@@ -8,6 +8,7 @@ import { create, get } from "../../services/crud";
 import UserNotFound from "../../components/UserNotFound";
 import SwiperContainer from "./components/container/SwiperContainer";
 import SocialMediaLinks from "./components/ui/SocialMediaLinks";
+import socket from "../../services/socket";
 
 export default function Profile() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -77,6 +78,19 @@ export default function Profile() {
         ? profile.followers_count + 1
         : profile.followers_count - 1,
     }));
+
+    const notification = {
+      to: profileData._id,
+      title: `${!is_follow ? "Unfollowed" : "Following"} You ${
+        profileData._id
+      }`,
+      description: `${getUser().first_name} ${getUser().last_name} ${
+        !is_follow ? "unfollowed" : "started following"
+      } you.`,
+      creator: getUserId(),
+    };
+
+    socket.emit("SEND_NOTIFICATION", notification);
 
     create(
       "user/" + (is_follow ? "follow/" : "unfollow/") + profileData._id,

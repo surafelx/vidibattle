@@ -47,6 +47,17 @@ export const usePostStore = create<PostState>((set) => ({
 
   setPosts: (posts: PostState["posts"]) => set({ posts: [...posts] }),
 
+  setPostToEdit: (id: string) =>
+    set((state) => {
+      const postsCopy = state.posts.map((p) => {
+        if (p._id === id) {
+        }
+        return p;
+      });
+
+      return { posts: postsCopy };
+    }),
+
   addToFeed: (posts: PostState["posts"]) =>
     set((state) => {
       const randomized = randomizePosts(posts);

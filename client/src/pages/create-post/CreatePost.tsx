@@ -139,6 +139,9 @@ export default function CreatePost({
       if (competitionId) formData.append("competition", competitionId);
       if (round !== null) formData.append("round", round.toString());
 
+      console.log(selectedFile, caption, fileType);
+
+
       setUploading(true);
 
       upload("post", formData, onUploadProgress)

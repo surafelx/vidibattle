@@ -32,6 +32,7 @@ router.get(
     failureRedirect: "/api/auth/login/failed",
   }),
   (req, res) => {
+    console.log("Succesful redirect");
     // Successful login, redirect or send a response
     res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
   }

@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<any>([]);
+  console.log(messages);
   const [tempMessages, setTempMessages] = useState<any>([]);
   const messagesRef = useRef<any>(); // to access messages within socket event listener. States are not accessible
   const [chatNotFound, setChatNotFound] = useState(false);
@@ -60,8 +61,18 @@ export default function Messages() {
         oldMessages.push(res.message);
         setMessages([...oldMessages]);
         setTempMessages((s: any[]) => s.splice(1));
+
         chatIdRef.current = res.chat_id;
       }
+    });
+
+    // Listen for MESSAGE_SEEN events from the server
+    socket.on("MESSAGE_SEEN", (data) => {
+      setMessages((prevMessages: any) =>
+        prevMessages.map((msg: any) =>
+          msg._id === data.messageId ? { ...msg, seen: true } : msg
+        )
+      );
     });
 
     // check if it came from a share screen, and set the input element with the text
@@ -98,6 +109,11 @@ export default function Messages() {
         block: "center",
       });
     }
+    messages.forEach((message: any) => {
+      if (message.receiver === currentUserId && !message.seen) {
+        socket.emit("MESSAGE_SEEN", message._id);
+      }
+    });
   }, [messages]);
 
   useEffect(() => {

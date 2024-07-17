@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import timeAgo from "../../../../services/timeAndDate";
-import { useReportStore, useShareStore } from "../../../../store";
+import { usePostStore, useShareStore } from "../../../../store";
 import { formatNumber } from "../../../../services/number-formatting";
 import {
   formatResourceURL,
@@ -21,7 +21,7 @@ export default function Post({
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const navigate = useNavigate();
   const setPostToShare = useShareStore((state) => state.setPostToShare);
-  const setPostToReport = useReportStore((state) => state.setPostToReport);
+  const setPostToEdit = usePostStore((state) => state.setPostToEdit);
   const postImageRef = useRef<HTMLImageElement | null>(null);
   const stickerContainerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -193,10 +193,10 @@ export default function Post({
                   />
                 </svg>
               </a>
-              {post.author?._id !== getUserId() && (
+              {post.author?._id !== getUserId() ? (
                 <div className="dropdown">
                   <a
-                    onClick={() => setPostToReport(post)}
+                    onClick={() => setPostToEdit(post)}
                     style={{ cursor: "pointer" }}
                     className="item-content item-link dropdown-toggle"
                     data-bs-toggle="dropdown"
@@ -213,6 +213,25 @@ export default function Post({
                     >
                       <i className="fa fa-ban me-2"></i>
                       <span>Report Post</span>
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="dropdown">
+                  <a
+                    style={{ cursor: "pointer" }}
+                    className="item-content item-link dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                  >
+                    <i className="fa fa-pencil" aria-hidden="true"></i>
+                  </a>
+                  <div className="dropdown-menu">
+                    <a
+                      href={`/edit-post/${post._id}`}
+                      className="dropdown-item text-primary"
+                      style={{ cursor: "pointer" }}
+                    >
+                      <span>Edit Post</span>
                     </a>
                   </div>
                 </div>

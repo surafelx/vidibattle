@@ -92,10 +92,19 @@ export default function MessagesContainer({
                     </div>
                     <div
                       className="message-time"
-                      style={{ paddingBottom: "10px" }}
+                      style={{
+                        paddingBottom: "10px",
+                        gap: "20px",
+                        display: "flex",
+                      }}
                     >
-                      {getTime(message.createdAt)}
+                      <span> {getTime(message.createdAt)}</span>
                     </div>
+                    {message.sender == currentUserId && (
+                      <div>
+                        <span>{message.seen ? "Seen" : "Sent"}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </span>

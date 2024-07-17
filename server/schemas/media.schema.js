@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const mediaSchema = new Schema(
   {
     filename: { type: String, required: true },
-    contentType: { type: String, required: true },
+    contentType: { type: String, },
     type: {
       type: String,
       enum: ["image", "video", "thumbnail"],

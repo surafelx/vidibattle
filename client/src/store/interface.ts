@@ -3,6 +3,7 @@ export interface PostState {
   setPosts: (posts: PostState["posts"]) => void;
   addToFeed: (posts: PostState["posts"]) => void;
   togglePostLike: (id: string, liked: boolean) => void;
+  setPostToEdit: (id: string) => void;
   incrementCommentsCount: (id: string) => void;
   decrementCommentsCount: (id: string) => void;
   clearPosts: () => void;
@@ -34,9 +35,7 @@ export interface ReportState {
   setPostToReport: (post: any) => void;
 }
 
-
 export interface BgdImgState {
   url: string;
   setImage: (url: string) => void;
-  
 }

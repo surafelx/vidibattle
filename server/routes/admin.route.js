@@ -4,7 +4,7 @@ const {
   updateAdminProfile,
   changePassword,
 } = require("../controllers/admin.controller");
-const { upload } = require("../services/storage");
+const { upload} = require("../services/storage");
 
 const router = express.Router();
 

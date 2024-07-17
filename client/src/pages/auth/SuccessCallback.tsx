@@ -26,7 +26,8 @@ export default function SuccessCallback() {
           navigate("/account-setup");
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log("Error", e);
         window.location.replace("/auth/login");
       });
   }, []);
