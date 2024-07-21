@@ -5,7 +5,7 @@ const MongoStore = require("connect-mongo");
 const createError = require("http-errors");
 const cors = require("cors");
 const cron = require("node-cron");
-require("dotenv").config({ path: "./config.env" });
+require("dotenv").config({ path: "./.env" });
 const routes = require("./routes/api");
 const passport = require("passport");
 const passportStrategy = require("./services/passport");
@@ -19,6 +19,7 @@ const {
 // const fs = require("fs");
 const { setupAgenda } = require("./services/queueManager");
 const { checkAdminAccount } = require("./services/admin");
+const socketio = require("socket.io");
 
 const connect = mongoose
   .connect(process.env.ATLAS_URI ?? "", {
@@ -29,6 +30,21 @@ const connect = mongoose
     console.log("MongoDB Connected...");
 
     const app = express();
+    const server = require("http").createServer(app);
+    const io = socketio(server, {
+      cors: {
+        origin: true,
+        methods: ["GET", "POST"],
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"],
+      },
+    });
+
+    // Middleware to attach io to req
+    app.use((req, res, next) => {
+      req.io = io;
+      next();
+    });
 
     // logging middleware
     app.use(logger);
@@ -50,6 +66,8 @@ const connect = mongoose
         },
       });
 
+    app.use("/api/media", express.static("media"));
+
     app.use("/api", sessionMiddleware("userSession"));
     app.use("/api", passport.initialize());
     app.use("/api", passport.session());
@@ -58,13 +76,20 @@ const connect = mongoose
     app.use("/admin/api", passport.initialize());
     app.use("/admin/api", passport.session());
 
-    app.use(
-      cors({
-        origin: [process.env.CLIENT_URL, process.env.ADMIN_URL],
-        methods: "GET,POST,PUT,DELETE",
-        credentials: true,
-      })
-    );
+    const corsOptions = {
+      origin: "http://localhost:5174", // specify the origin you want to allow
+      credentials: true, // allow credentials (cookies, authorization headers, etc.)
+    };
+
+    app.use(cors(corsOptions));
+
+    // app.use(
+    //   cors({
+    //     origin: [process.env.CLIENT_URL, process.env.ADMIN_URL],
+    //     methods: "GET,POST,PUT,DELETE",
+    //     credentials: true,
+    //   })
+    // );
     app.use(express.json());
 
     app.use("/api", routes);
@@ -110,12 +135,12 @@ const connect = mongoose
     //     console.log(`Server running on port ${port}`);
     //   });
 
-    const server = app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`Server running on port ${port}`);
       runOnServerStart(m);
     });
 
-    websocket(server);
+    websocket(io);
   })
   .catch((err) => console.log("MongoDB Connection Error:", err));
 

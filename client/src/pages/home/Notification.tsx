@@ -34,7 +34,7 @@ export default function Notification() {
 
     socket?.on("NEW_NOTIFICATION", handleNewNotification);
 
-    socket?.on("READ_NOTIFICATION", (updatedNotification) => {
+    socket?.on("READ_NOTIFICATION", (updatedNotification: any) => {
       setNotifications((prevNotifications: any) =>
         prevNotifications.map((notification: any) =>
           notification._id == updatedNotification._id
@@ -57,7 +57,11 @@ export default function Notification() {
 
         // Mark all messages as seen after loading
         res?.data?.forEach((notification: any) => {
-          if (!notification.read && notification?.to?._id == currentUserId) {
+        console.log("Hello", notification)
+
+          if (notification?.to?._id == currentUserId) {
+            console.log("Hello2");
+
             markNotificationAsSeen(notification._id);
           }
         });

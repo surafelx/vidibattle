@@ -319,109 +319,22 @@ module.exports.getMessages = async (req, res, next) => {
 
 module.exports.getAllMessages = async (req, res, next) => {
   try {
-    const { username } = req.params;
-    let { pageSize = 10, lastDate, lastMessageId } = req.query;
     const currentUserId = req.user._id;
 
-    const specifiedUser = await User.findOne({ username }).exec();
-    if (!specifiedUser) {
-      return res.status(404).json({ message: "requested user not found" });
-    }
+    // Find all chats where the current user is the receiver
+    const allMessages = await Message.find({ receiver: currentUserId }).exec();
 
-    // Check if the current user has blocked the specified user
-    const currentUser = await User.findById(currentUserId).exec();
-    if (!currentUser) {
-      return res.status(404).json({ message: "requesting user not found" });
-    }
-    if (currentUser.blocked_users.includes(specifiedUser._id)) {
-      return res.status(403).json({ message: "Can't access this chat" });
-    }
-
-    // Check if the specified user has blocked the current user
-    if (specifiedUser.blocked_users.includes(currentUserId)) {
-      return res
-        .status(403)
-        .json({ message: "Access denied. This user has blocked you." });
-    }
-
-    // get the chat both users participate in
-    const chat = await Chat.findOne(
-      {
-        participants: { $all: [currentUserId, specifiedUser._id] },
-      },
-      "participants"
-    ).exec();
-
-    if (!chat) {
-      return res.json({
-        data: {
-          messages: [],
-          chat,
-          receiver: {
-            _id: specifiedUser._id,
-            first_name: specifiedUser.first_name,
-            last_name: specifiedUser.last_name,
-            profile_img: specifiedUser.profile_img,
-            username: specifiedUser.username,
-          },
-          lastDate: lastDate,
-          lastMessageId: lastMessageId,
-        },
-      });
-    }
-
-    // get the messages in the chat
-    let query = Message.find({ chat_id: chat._id }).sort({ createdAt: -1 });
-
-    // paginate the messages
-    if (lastMessageId && lastDate) {
-      query = query.or([
-        { createdAt: { $lt: new Date(lastDate) } },
-        {
-          $and: [
-            { createdAt: new Date(lastDate) },
-            { _id: { $lt: new mongoose.Types.ObjectId(lastMessageId) } },
-          ],
-        },
-    ]);
-    }
-    query = query.exec();
-
-    const messages = await query;
-
-    // get participants info from the chat
-    await chat.populate({
-      path: "participants",
-      select: "first_name last_name bio profile_img username",
-    });
-
-    let updatedLastDate = lastDate;
-    let updatedLastMessageId = lastMessageId;
-
-    if (messages.length > 0) {
-      updatedLastDate = messages[messages.length - 1].createdAt.toISOString();
-      updatedLastMessageId = messages[messages.length - 1]._id.toString();
-    }
 
     res.json({
       data: {
-        messages: messages.reverse(),
-        chat,
-        receiver: {
-          _id: specifiedUser._id,
-          first_name: specifiedUser.first_name,
-          last_name: specifiedUser.last_name,
-          profile_img: specifiedUser.profile_img,
-          username: specifiedUser.username,
-        },
-        lastDate: updatedLastDate,
-        lastMessageId: updatedLastMessageId,
+        messages: allMessages,
       },
     });
   } catch (e) {
     next(e);
   }
 };
+
 
 module.exports.chatMessageSeenStatusUpdate = async (req, res, next) => {
   try {

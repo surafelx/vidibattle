@@ -88,6 +88,7 @@ export default function Profile() {
         !is_follow ? "unfollowed" : "started following"
       } you.`,
       creator: getUserId(),
+      is_follow,
     };
 
     socket.emit("SEND_NOTIFICATION", notification);

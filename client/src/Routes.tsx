@@ -4,7 +4,6 @@ import SplashScreen from "./components/SplashScreen";
 import Login from "./pages/auth/Login";
 import WhatsAppLogin from "./pages/auth/WhatsAppLogin";
 import Home from "./pages/home/Home";
-import Notification from "./pages/home/Notification";
 import NotFound from "./pages/NotFound";
 import Timeline from "./pages/timeline/Timeline";
 import { MainLayout } from "./layouts/Layouts";
@@ -27,13 +26,15 @@ import CompetitionInfo from "./pages/competition/CompetitionInfo";
 import CreateCompetitionPost from "./pages/create-post/CreateCompetitionPost";
 import Wallet from "./pages/wallet/Wallet";
 import CompetitionPosts from "./pages/competition/CompetitionPosts";
+import Notification from "./pages/home/Notification";
 
-export default function Router({ messageCount }: any) {
+export default function Router() {
   let loggedIn = isLoggedIn();
-  const [loading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loggedIn = isLoggedIn();
+    setLoading(false);
   }, []);
 
   if (loading) {
@@ -90,7 +91,7 @@ export default function Router({ messageCount }: any) {
           <Route
             path="/home"
             element={
-              <MainLayout messageCount={messageCount} active="home">
+              <MainLayout active="home">
                 <Home />
               </MainLayout>
             }

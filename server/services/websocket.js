@@ -26,8 +26,7 @@ const getNotificationCount = async (userId) => {
 const websocket = (io) => {
   // Socket.IO
   io.on("connection", async (socket) => {
-    console.log(JSON.stringify(socket.handshake.query));
-    const user_id = socket.handshake.query["user_id"];
+    const user_id = socket?.handshake?.query["user_id"];
 
     if (user_id != null && Boolean(user_id)) {
       try {
@@ -71,7 +70,13 @@ const websocket = (io) => {
         attachment,
       });
 
-      console.log("Working Here");
+      console.log("Message Created", {
+        chatId,
+        sender,
+        receiver,
+        content,
+        attachment,
+      });
       // Emit the new message to the receiver
       const receiverUser = await User.findById(receiver);
       if (receiverUser && receiverUser.socket_id) {
@@ -101,6 +106,30 @@ const websocket = (io) => {
     });
 
     socket.on("SEND_NOTIFICATION", async (notification) => {
+      const { to, title, description, creator, is_follow } = notification;
+      console.log("SEND NOTIFICATION", notification);
+      if (!is_follow) {
+        await Notification.deleteOne({
+          $and: [{ to: to }, { creator: creator }, { title: title }],
+        });
+      } else {
+        const notificationExist = await Notification.findOne({
+          $and: [{ to: to }, { creator: creator }, { title: title }],
+        });
+
+        console.log(notificationExist);
+
+        if (!notificationExist) {
+          const notification = new Notification({
+            to: to,
+            title: title,
+            description: description,
+            creator: creator,
+          });
+
+          await notification.save();
+        }
+      }
       const receiverUser = await User.findById(notification.to);
       if (receiverUser && receiverUser.socket_id) {
         io.emit("INCOMING_NOTIFICATION", notification);

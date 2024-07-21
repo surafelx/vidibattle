@@ -109,7 +109,7 @@ export default function Home() {
 
   return (
     <>
-      <HomeHeader installPWA={installPWA} />
+      {/* <HomeHeader installPWA={installPWA} /> */}
 
       {/* Page Content  */}
       <div

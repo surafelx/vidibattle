@@ -54,12 +54,11 @@ export const remove = async (url: string) => {
 
 export const upload = async (
   url: string,
-  formData: any,
+  formData: FormData,
   onUploadProgress: (e: any) => void,
   method?: "post" | "put"
 ) => {
   try {
-    console.log(formData, "Data is sent though")
     const req = method && method === 'put' ? axios.put : axios.post 
     const response = await req(`${BASE_URL}/${url}`, formData, {
       withCredentials: true,

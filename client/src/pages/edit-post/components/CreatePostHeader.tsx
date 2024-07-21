@@ -29,7 +29,7 @@ export default function CreatePostHeader({
               disabled ? "disabled" : ""
             }`}
           >
-            POST
+            Save
           </a>
         </div>
       </TopNavBarWrapper>

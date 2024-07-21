@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import timeAgo from "../../../../services/timeAndDate";
-import { usePostStore, useShareStore } from "../../../../store";
+import { useReportStore, useShareStore } from "../../../../store";
 import { formatNumber } from "../../../../services/number-formatting";
 import {
   formatResourceURL,
@@ -21,7 +21,7 @@ export default function Post({
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const navigate = useNavigate();
   const setPostToShare = useShareStore((state) => state.setPostToShare);
-  const setPostToEdit = usePostStore((state) => state.setPostToEdit);
+  const setPostToReport = useReportStore((state) => state.setPostToReport);
   const postImageRef = useRef<HTMLImageElement | null>(null);
   const stickerContainerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);

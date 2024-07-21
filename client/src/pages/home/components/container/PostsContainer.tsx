@@ -67,7 +67,6 @@ export default function PostsContainer({
     closeReportModal();
   };
 
-
   const closeReportModal = () => {
     let btn = document.getElementById("bottomModalClose");
     if (btn) {
