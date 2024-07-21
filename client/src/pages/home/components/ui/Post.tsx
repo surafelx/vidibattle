@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import timeAgo from "../../../../services/timeAndDate";
-import { useReportStore, useShareStore } from "../../../../store";
+import {  useShareStore } from "../../../../store";
 import { formatNumber } from "../../../../services/number-formatting";
 import {
   formatResourceURL,
@@ -21,7 +21,6 @@ export default function Post({
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const navigate = useNavigate();
   const setPostToShare = useShareStore((state) => state.setPostToShare);
-  const setPostToReport = useReportStore((state) => state.setPostToReport);
   const postImageRef = useRef<HTMLImageElement | null>(null);
   const stickerContainerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -196,7 +195,6 @@ export default function Post({
               {post.author?._id !== getUserId() ? (
                 <div className="dropdown">
                   <a
-                    onClick={() => setPostToEdit(post)}
                     style={{ cursor: "pointer" }}
                     className="item-content item-link dropdown-toggle"
                     data-bs-toggle="dropdown"

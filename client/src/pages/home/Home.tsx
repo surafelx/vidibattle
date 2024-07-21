@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import PageLoading from "../../components/PageLoading";
-import HomeHeader from "./components/HomeHeader";
 import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
 import { get } from "../../services/crud";

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import TopNavBarWrapper from "./TopNavBarWrapper";
 import HeaderLogo from "./HeaderLogo";
 
-export default function HomeHeader({notificationCount}) {
+export default function HomeHeader({notificationCount}: any) {
 
 
   return (
