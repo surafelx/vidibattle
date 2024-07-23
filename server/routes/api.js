@@ -18,7 +18,7 @@ const dashboardRouter = require("./dashboard.route");
 const notificationRouter = require("./notification.route");
 const adsRouter = require("./ads.route");
 
-router.use("/advertisement", adsRouter);
+router.use("/ad", adsRouter);
 router.use("/auth", authRouter);
 router.use("/post", postRouter);
 router.use("/media", mediaRouter);

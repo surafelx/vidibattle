@@ -1,5 +1,6 @@
-const Ad = require("../models/ad"); // Import your Ad model
+const Ad = require("../models/ad.model"); // Import your Ad model
 const { uploadToStorage, deleteFromStorage } = require("../services/storage"); // Assuming you have a storage service
+const { Media } = require("../models/media.model");
 
 // Get details of a specific ad
 exports.getAdInfo = async (req, res) => {
@@ -17,24 +18,55 @@ exports.getAdInfo = async (req, res) => {
 // Create a new ad
 exports.createAd = async (req, res) => {
   try {
-    const { title, description, category } = req.body;
+    const userId = req.user?._id;
+    const { name, displayInterval, displayDuration, enabled } = JSON.parse(
+      req.body.data
+    );
+
+    const imageBody =
+      req.files && req.files["image"] && req.files["image"][0]
+        ? req.files["image"][0]
+        : null;
+    const videoBody =
+      req.files && req.files["video"] && req.files["video"][0]
+        ? req.files["video"][0]
+        : null;
+
+    let imageMedia, videoMedia;
+
+    if (imageBody) {
+      imageMedia = new Media({
+        filename: imageBody.filename,
+        contentType: "image",
+        type: "image",
+        owner: userId,
+      });
+      await imageMedia.save();
+    }
+
+    if (videoBody) {
+      videoMedia = new Media({
+        filename: videoBody.filename,
+        contentType: "video",
+        type: "video",
+        owner: userId,
+      });
+      await videoMedia.save();
+    }
+
     const ad = new Ad({
-      title,
-      description,
-      category,
-      image: req.files.image
-        ? await uploadToStorage(req.files.image[0])
-        : undefined,
-      banner: req.files.banner
-        ? await uploadToStorage(req.files.banner[0])
-        : undefined,
-      video: req.files.video
-        ? await uploadToStorage(req.files.video[0])
-        : undefined,
+      name,
+      displayInterval,
+      displayDuration,
+      enabled,
+      image: imageMedia ? [imageMedia._id] : undefined,
+      video: videoMedia ? [videoMedia._id] : undefined,
     });
+
     await ad.save();
     res.status(201).json(ad);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -93,13 +125,28 @@ exports.deleteAd = async (req, res) => {
   }
 };
 
-// Get a list of all ads
-exports.getAdsList = async (req, res) => {
+exports.getAdsList = async (req, res, next) => {
   try {
-    const ads = await Ad.find();
-    res.json(ads);
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    const { page = 1, limit = 10 } = req.query;
+
+    // await Ad.deleteMany({});
+    const total = await Ad.countDocuments();
+
+    let ads = await Ad.find()
+      .sort({ updatedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .populate("image")
+      .populate("video");
+
+    res.status(200).json({
+      data: ads,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+    });
+  } catch (e) {
+    next(e);
   }
 };
 

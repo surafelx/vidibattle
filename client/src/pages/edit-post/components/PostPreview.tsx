@@ -1,10 +1,9 @@
-import { useRef } from "react";
-import { formatFileSize } from "../../../services/file";
+import { formatResourceURL } from "../../../services/asset-paths";
 
 interface PostPreviewProps {
   caption: string;
   type: "video" | "image";
-  file: File | null;
+  file: { filename: string; size: number; contentType: string };
   thumbnail?: File | null;
   deleteFiles: () => void;
   onVideoLengthChanged: (duration: number) => void;
@@ -13,16 +12,8 @@ export default function PostPreview({
   caption,
   type,
   file,
-  thumbnail,
   deleteFiles,
-  onVideoLengthChanged,
 }: PostPreviewProps) {
-  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
-
-  const handleLoadedMetadata = () => {
-    onVideoLengthChanged(videoPreviewRef.current?.duration ?? 0);
-  };
-
   return (
     <div className="container">
       <div className="col-12">
@@ -39,10 +30,6 @@ export default function PostPreview({
               )}
             </p>
             <div className="divider divider-dotted"></div>
-            <p>File Size: {formatFileSize(file?.size as number)}</p>
-            {type === "video" && thumbnail && (
-              <p>Thumbnail Size: {formatFileSize(thumbnail?.size as number)}</p>
-            )}
             <div className="position-relative ">
               {type === "image" && file && (
                 <img
@@ -53,25 +40,28 @@ export default function PostPreview({
                     maxHeight: "500px",
                     objectFit: "scale-down",
                   }}
-                  src={URL.createObjectURL(file)}
+                  src={formatResourceURL(file?.filename)}
                   alt="No image found"
                 />
               )}
               {type === "video" && (
                 <video
-                  id="videoPreview"
+                  id="videoPlayer"
                   style={{
-                    width: "100%",
-                    maxWidth: "900px",
+                    width: "auto",
+                    maxWidth: "100%",
                     height: "auto",
-                    maxHeight: "500px",
+                    minHeight: "200px",
+                    maxHeight: "600px",
+                    objectFit: "contain",
                   }}
-                  poster={thumbnail ? URL.createObjectURL(thumbnail) : ""}
                   controls
-                  src={URL.createObjectURL(file as File)}
-                  ref={videoPreviewRef}
-                  onLoadedMetadata={handleLoadedMetadata}
-                ></video>
+                >
+                  <source
+                    src={formatResourceURL(file?.filename)}
+                    type={file?.contentType}
+                  />
+                </video>
               )}
               <div className="position-absolute top-0 p-3">
                 <button onClick={deleteFiles} className="btn btn-danger">

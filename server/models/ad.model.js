@@ -1,31 +1,40 @@
 const mongoose = require("mongoose");
 
-// Define the schema for an ad
+const Schema = mongoose.Schema;
+
 const adSchema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
+      trim: true,
+    },
+    title: {
+      type: String,
       trim: true,
     },
     description: {
       type: String,
-      required: true,
       trim: true,
     },
     category: {
       type: String,
-      required: true,
       trim: true,
     },
-    image: {
-      type: String, // URL or path to the image file
+    image: [{ type: Schema.Types.ObjectId, ref: "Media" }],
+    video: [{ type: Schema.Types.ObjectId, ref: "Media" }],
+    displayInterval: {
+      type: Number,
+      required: true,
     },
-    banner: {
-      type: String, // URL or path to the banner file
+    displayDuration: {
+      type: Number,
+      required: true,
     },
-    video: {
-      type: String, // URL or path to the video file
+    enabled: {
+      type: Boolean,
+      required: true,
+      default: true,
     },
     impressions: {
       type: Number,
@@ -41,9 +50,4 @@ const adSchema = new mongoose.Schema(
   }
 );
 
-// Create a text index on title and description for search functionality
-adSchema.index({ title: "text", description: "text" });
-
-const Ad = mongoose.model("Ad", adSchema);
-
-module.exports = Ad;
+module.exports = mongoose.model("Ad", adSchema);

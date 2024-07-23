@@ -50,10 +50,10 @@ export default function EditPost({
     return get(`post/${postId}`)
       .then((res) => {
         if (res.data.length !== 0) {
-          console.log(res.data);
           setCaption(res.data.caption);
-          setFileType("image");
-          // setSelectedFile(res.data.media[0]);
+          setFileType(res.data.media[0].type);
+          console.log(res.data);
+          setSelectedFile(res.data.media[0]);
         }
       })
       .catch((e) => {
@@ -163,7 +163,7 @@ export default function EditPost({
 
       setUploading(true);
 
-      upload("post", formData, onUploadProgress)
+      upload(`post/${postId}`, formData, onUploadProgress, "put")
         .then((_) => {
           setUploading(false);
           toast.success("post uploaded successfully");

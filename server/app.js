@@ -77,7 +77,7 @@ const connect = mongoose
     app.use("/admin/api", passport.session());
 
     const corsOptions = {
-      origin: "http://localhost:5174", // specify the origin you want to allow
+      origin: "http://localhost:5173", // specify the origin you want to allow
       credentials: true, // allow credentials (cookies, authorization headers, etc.)
     };
 

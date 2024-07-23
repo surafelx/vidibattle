@@ -73,6 +73,7 @@ export default function Home() {
           loadingAdditionalPosts.current = false;
           window.removeEventListener("scroll", handleScroll);
         }
+        console.log(res.data);
         addToFeed([...res.data]);
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;

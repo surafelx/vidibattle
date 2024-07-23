@@ -13,3 +13,27 @@
   background-attachment: fixed !important;
   background-position: center !important;
 }
+
+/* Add these styles to your CSS file */
+.post-fullscreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.post-video {
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+}
+
+.post-info {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  text-align: center;
+}

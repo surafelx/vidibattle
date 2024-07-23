@@ -17,7 +17,8 @@ export function MainLayout({
 
   const getMessages = (cid: string) => {
     get("chat/all-messages/" + cid)
-      .then((res: any) => {
+      .then((res) => {
+        console.log(res);
         const count = res.data.messages.filter(({ seen }: any) => !seen).length;
         setMessageCount(count);
       })
@@ -28,7 +29,7 @@ export function MainLayout({
 
   const getNotifications = (cid: string) => {
     get("notification/unseen", { query: { _id: cid } })
-      .then((res: any) => {
+      .then((res) => {
         setNotificationCount(res.data);
       })
       .catch((e) => {
@@ -44,7 +45,7 @@ export function MainLayout({
       getMessages(user.username);
       getNotifications(userId);
 
-      socket.on("INCOMING_MESSAGE", function (res: any) {
+      socket.on("INCOMING_MESSAGE", function (res) {
         if (res.receiver == userId) {
           if (!res.message.seen) {
             getMessages(user.username);
@@ -52,7 +53,7 @@ export function MainLayout({
         }
       });
 
-      socket.on("INCOMING_NOTIFICATION", function () {
+      socket.on("INCOMING_NOTIFICATION", function (res) {
         getNotifications(userId);
       });
     }

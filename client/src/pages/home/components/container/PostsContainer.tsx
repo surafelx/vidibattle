@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Post from "../ui/Post";
 import CommentsContainer from "./CommentsContainer";
 import { usePostStore, useReportStore } from "../../../../store";
@@ -14,15 +14,35 @@ interface PostContainerProps {
   showAddBtn?: boolean;
 }
 
+const extractHashtags = (caption: string) => {
+  const regex = /#[a-zA-Z0-9_]+/g;
+  return caption.match(regex) || [];
+};
+
+const filterByHashtag = (feed: any[], hashtag: string) => {
+  if (hashtag)
+    return feed.filter((post) => {
+      const hashtags: any = extractHashtags(post.caption);
+      return hashtags.includes(hashtag);
+    });
+  return feed;
+};
+
 export default function PostsContainer({
   feed,
   showAddBtn,
 }: PostContainerProps) {
-  const [visibleComment, setVisibleComment] = useState<string | null>();
+  const [visibleComment, setVisibleComment] = useState<string | null>(null);
+  const [hashTagFilter, setHashtagFilter] = useState<string>("");
+  const [filteredFeed, setFilteredFeed] = useState<any[]>(feed);
   const componentRefs = useRef<{ [key: string]: HTMLElement }>({});
   const postToReport = useReportStore((state) => state.post);
   const togglePostLike = usePostStore((state) => state.togglePostLike);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setFilteredFeed(filterByHashtag(feed, hashTagFilter));
+  }, [hashTagFilter, feed]);
 
   const toggleComment = (id: string) => {
     if (visibleComment === id) {
@@ -74,19 +94,27 @@ export default function PostsContainer({
     }
   };
 
-  if (feed.length === 0) {
+  if (filteredFeed.length === 0) {
     return <NoPostsFound showBtn={showAddBtn ?? true} />;
   }
 
   return (
     <>
       <div className="post-area">
-        {feed.map((post) => (
+        {hashTagFilter && (
+          <div style={{ position: "fixed" }}>
+            Filtered By {`${hashTagFilter}`}
+            <button onClick={() => setHashtagFilter("")}>Reset Filter</button>
+          </div>
+        )}
+        {filteredFeed.map((post) => (
           <div
             key={post._id}
             ref={(el) => (componentRefs.current[post._id] = el as HTMLElement)}
           >
             <Post
+              fillScreen={false}
+              setHashtagFilter={setHashtagFilter}
               post={post}
               toggleComment={toggleComment}
               togglePostLike={likePost}

@@ -74,6 +74,8 @@ export const upload = async (
   }
 };
 
+
+
 function handleStatusCodes(status: number) {
   switch (status) {
     case 401:

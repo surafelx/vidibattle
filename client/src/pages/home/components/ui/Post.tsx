@@ -13,10 +13,14 @@ export default function Post({
   post,
   toggleComment,
   togglePostLike,
+  fillScreen,
+  setHashtagFilter,
 }: {
   post: any;
   toggleComment: (id: string) => void;
   togglePostLike: (id: string, liked: boolean) => void;
+  fillScreen: boolean;
+  setHashtagFilter: (hashtag: string) => void;
 }) {
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const navigate = useNavigate();
@@ -92,6 +96,20 @@ export default function Post({
     }
   };
 
+  const extractHashtags = (caption: string) => {
+    const regex = /#[a-zA-Z0-9_]+/g;
+    return caption.match(regex) || [];
+  };
+
+  const HashtagButton = ({ hashtag }: any) => (
+    <button
+      onClick={() => setHashtagFilter(hashtag)}
+      className="hashtag-butto"
+      style={{ padding: "5px", marginRight: "5px" }}
+    >
+      {hashtag}
+    </button>
+  );
   const putStickerOnTop = () => {
     // Insert the sticker container dev before the post image
     postImageRef.current?.parentNode?.insertBefore(
@@ -100,9 +118,11 @@ export default function Post({
     );
   };
 
+  const hashtags = extractHashtags(post.caption);
+
   return (
     <>
-      <div className="post-card">
+      <div className={`post-card ${fillScreen ? "post-fullscreen" : ""}`}>
         <div className="top-meta">
           <div className="d-flex justify-content-between align-items-start">
             <a
@@ -265,6 +285,11 @@ export default function Post({
         <p className="text-black" style={{ overflowWrap: "break-word" }}>
           {post.caption}
         </p>
+        <div className="hashtag-buttons pb-4 pr-2">
+          {hashtags.map((hashtag, index) => (
+            <HashtagButton className="pr-2" key={index} hashtag={hashtag} />
+          ))}
+        </div>
         <div className="dz-media">
           {post.media?.[0]?.type === "image" && (
             <div style={{ position: "relative", width: "fit-content" }}>

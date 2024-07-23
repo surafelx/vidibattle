@@ -27,6 +27,7 @@ import CreateCompetitionPost from "./pages/create-post/CreateCompetitionPost";
 import Wallet from "./pages/wallet/Wallet";
 import CompetitionPosts from "./pages/competition/CompetitionPosts";
 import Notification from "./pages/home/Notification";
+import Reels from "./pages/home/Reels";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -109,6 +110,14 @@ export default function Router() {
             element={
               <MainLayout>
                 <Notification />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/reels"
+            element={
+              <MainLayout>
+                <Reels />
               </MainLayout>
             }
           />

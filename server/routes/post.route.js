@@ -18,6 +18,15 @@ router.post(
   upload.fields([{ name: "file" }, { name: "thumbnail" }]),
   postsController.create
 );
+//post
+router.put(
+  "/:postId",
+  authGuard,
+  upload.fields([{ name: "file" }, { name: "thumbnail" }]),
+  postsController.update
+);
+
+
 router.post("/like/:postId", authGuard, postsController.likePost);
 router.post("/unlike/:postId", authGuard, postsController.unlikePost);
 

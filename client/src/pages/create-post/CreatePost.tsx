@@ -128,10 +128,26 @@ export default function CreatePost({
     setCaption(e.target.value);
   };
 
+  const extractHashtags = (caption: any) => {
+    // Use a regular expression to match hashtags
+    const hashtagRegex = /#(\w+)/g;
+    const hashtags = [];
+    let match;
+
+    // Use matchAll to iterate over all matches
+    while ((match = hashtagRegex.exec(caption)) !== null) {
+      hashtags.push(match[1]);
+    }
+
+    return hashtags;
+  };
+
   const handleUpload = () => {
     if (selectedFile && validateMedia()) {
       const formData = new FormData();
+      const hastag = extractHashtags(caption);
       formData.append("file", selectedFile);
+      formData.append("hastag", JSON.stringify(hastag));
       formData.append("author", getUserId() ?? "");
       formData.append("caption", caption);
       formData.append("type", fileType);

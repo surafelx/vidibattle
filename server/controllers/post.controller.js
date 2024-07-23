@@ -235,9 +235,7 @@ module.exports.getPostsByHashtags = async (req, res, next) => {
 };
 
 module.exports.create = async (req, res, next) => {
-  console.log(req.body)
   const { caption, hastag, author, type, competition, round } = req.body;
-  const hastagArr = hastag ? JSON.parse(hastag) : [];
   const mainFile = req.files["file"][0];
   const thumbnailFile = req.files["thumbnail"]?.[0];
   const { _id } = req.user;
@@ -376,7 +374,7 @@ module.exports.create = async (req, res, next) => {
 
     const postData = {
       caption,
-      hastag: hastagArr,
+      hashtag: hastag,
       media: [media._id],
       author,
     };
@@ -394,6 +392,142 @@ module.exports.create = async (req, res, next) => {
     await post.save();
 
     res.status(201).json({ message: "post created successfully", data: post });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.update = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    const { caption, hastag, author, type, competition, round } = req.body;
+    const hashtagArr = hashtag ? JSON.parse(hashtag) : [];
+    const mainFile = req.files["file"]?.[0];
+    const thumbnailFile = req.files["thumbnail"]?.[0];
+    const { _id } = req.user;
+
+    // Validate author
+    if (_id !== author) {
+      return res
+        .status(403)
+        .json({ message: "Cannot update a post for the given author" });
+    }
+
+    // Validate media type
+    if (type !== "image" && type !== "video") {
+      return res.status(400).json({ message: "Invalid media type" });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    p;
+    if (competition) {
+      const competitionItem = await Competition.findOne({
+        status: { $in: ["started", "scheduled"] },
+        _id: competition,
+        current_round: { $lte: round ?? 1 },
+      });
+
+      let isVideoProcessable = false;
+      if (competitionItem.has_sticker && type === "video") {
+        isVideoProcessable = await isProcessableVideo(mainFile.filename);
+      }
+
+      if (!competitionItem) {
+        return res.status(400).json({ message: "Competition not found" });
+      } else if (
+        round !== null &&
+        parseInt(round) < parseInt(competitionItem.current_round)
+      ) {
+        return res.status(400).json({ message: "Cannot post for this round" });
+      } else if (!round && competition.current_round !== 1) {
+        return res.status(400).json({ message: "Cannot post for this round" });
+      }
+
+      // Get competitor info
+      const competitor = await CompetingUser.findOne({
+        user: _id,
+        competition,
+        status: "playing",
+        current_round: { $lte: parseInt(round ?? 1) },
+      });
+
+      if (!competitor) {
+        return res
+          .status(400)
+          .json({ message: "This person cannot post in this round" });
+      }
+
+      // Get a random sticker if the competition has stickers
+      let sticker = null;
+      if (competitionItem.has_sticker) {
+        const stickerObj = await getRandomSticker(
+          competitionItem._id,
+          type === "video"
+        );
+        sticker = stickerObj ? stickerObj._id : null;
+
+        if (stickerObj && type === "video") {
+          try {
+            if (!isVideoProcessable) {
+              deleteFile(mainFile.filename);
+              return res.status(400).json({
+                message:
+                  "Unsupported video codec detected. You cannot post this video for a competition",
+              });
+            }
+
+            scheduleVideoTask({
+              file: JSON.parse(JSON.stringify(mainFile)),
+              sticker: stickerObj,
+            });
+
+            stickerObj.usage_count += 1;
+            await stickerObj.save();
+          } catch (e) {
+            console.log("Error on sticker");
+            console.log(e);
+          }
+        }
+      }
+
+      post.competition = competition;
+      post.round = parseInt(round) ?? 1;
+      post.sticker = sticker;
+    }
+
+    // Update the media document if new files are provided
+    if (mainFile) {
+      const media = new Media({
+        filename: mainFile.filename,
+        contentType: mainFile.contentType,
+        type,
+        owner: author,
+      });
+
+      if (thumbnailFile) {
+        const thumbnail = new Media({
+          filename: thumbnailFile.filename,
+          contentType: thumbnailFile.contentType,
+          type: "thumbnail",
+          owner: author,
+        });
+
+        await thumbnail.save();
+        media.thumbnail = thumbnail._id;
+      }
+
+      await media.save();
+      post.media = [media._id];
+    }
+
+    post.caption = caption;
+    post.hashtag = hashtagArr;
+    await post.save();
+
+    res.status(200).json({ message: "Post updated successfully", data: post });
   } catch (error) {
     next(error);
   }
